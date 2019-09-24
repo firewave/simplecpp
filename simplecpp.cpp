@@ -519,7 +519,7 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
         TokenString currentToken;
 
         if (cback() && cback()->location.line == location.line && cback()->previous && cback()->previous->op == '#' && (lastLine() == "# error" || lastLine() == "# warning")) {
-            char prev = ' ';
+            unsigned char prev = ' ';
             while (istr.good() && (prev == '\\' || (ch != '\r' && ch != '\n'))) {
                 currentToken += ch;
                 prev = ch;
@@ -616,7 +616,7 @@ void simplecpp::TokenList::readfile(std::istream &istr, const std::string &filen
                     }
                     return;
                 }
-                const std::string endOfRawString(')' + delim + currentToken);
+                const std::string endOfRawString(std::string(")").append(delim).append(currentToken));
                 while (istr.good() && !(endsWith(currentToken, endOfRawString) && currentToken.size() > 1))
                     currentToken += readChar(istr,bom);
                 if (!endsWith(currentToken, endOfRawString)) {
@@ -729,7 +729,7 @@ static bool isFloatSuffix(const simplecpp::Token *tok)
 {
     if (!tok || tok->str().size() != 1U)
         return false;
-    const char c = std::tolower(tok->str()[0]);
+    const char c = (char)std::tolower(tok->str()[0]);
     return c == 'f' || c == 'l';
 }
 
@@ -1116,13 +1116,13 @@ void simplecpp::TokenList::removeComments()
     }
 }
 
-std::string simplecpp::TokenList::readUntil(std::istream &istr, const Location &location, const char start, const char end, OutputList *outputList, unsigned int bom)
+std::string simplecpp::TokenList::readUntil(std::istream &istr, const Location &location, const unsigned char start, const unsigned char end, OutputList *outputList, unsigned int bom)
 {
     std::string ret;
     ret += start;
 
     bool backslash = false;
-    char ch = 0;
+    unsigned char ch = 0;
     while (ch != end && ch != '\r' && ch != '\n' && istr.good()) {
         ch = readChar(istr, bom);
         if (backslash && ch == '\n') {
@@ -1133,7 +1133,7 @@ std::string simplecpp::TokenList::readUntil(std::istream &istr, const Location &
         backslash = false;
         ret += ch;
         if (ch == '\\') {
-            const char next = readChar(istr, bom);
+            const unsigned char next = readChar(istr, bom);
             if (next == '\r' || next == '\n') {
                 ret.erase(ret.size()-1U);
                 backslash = (next == '\r');
@@ -1218,7 +1218,7 @@ namespace simplecpp {
             *this = macro;
         }
 
-        void operator=(const Macro &macro) {
+        Macro& operator=(const Macro &macro) {
             if (this != &macro) {
                 valueDefinedInCode_ = macro.valueDefinedInCode_;
                 if (macro.tokenListDefine.empty())
@@ -1228,6 +1228,7 @@ namespace simplecpp {
                     parseDefine(tokenListDefine.cfront());
                 }
             }
+            return *this;
         }
 
         bool valueDefinedInCode() const {
@@ -1829,7 +1830,7 @@ namespace simplecpp {
 
             std::string strAB;
 
-            const bool varargs = variadic && args.size() >= 1U && B->str() == args[args.size()-1U];
+            const bool varargs = variadic && !args.empty() && B->str() == args[args.size()-1U];
 
             TokenList tokensB(files);
             if (expandArg(&tokensB, B, parametertokens)) {
