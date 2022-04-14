@@ -9,13 +9,21 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <fstream>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+enum Input {
+    Stringstream,
+    Fstream
+};
+
+static Input USE_INPUT = Stringstream;
 static int numberOfFailedAssertions = 0;
 
 #define ASSERT_EQUALS(expected, actual)  (assertEquals((expected), (actual), __LINE__))
@@ -32,11 +40,20 @@ static std::string pprint(const std::string &in)
     return ret;
 }
 
+static const char* inputString(Input input) {
+    switch (input) {
+        case Stringstream:
+            return "Stringstream";
+        case Fstream:
+            return "Fstream";
+    }
+}
+
 static int assertEquals(const std::string &expected, const std::string &actual, int line)
 {
     if (expected != actual) {
         numberOfFailedAssertions++;
-        std::cerr << "------ assertion failed ---------" << std::endl;
+        std::cerr << "------ assertion failed (" << inputString(USE_INPUT) << ") ---------" << std::endl;
         std::cerr << "line " << line << std::endl;
         std::cerr << "expected:" << pprint(expected) << std::endl;
         std::cerr << "actual:" << pprint(actual) << std::endl;
@@ -71,10 +88,34 @@ static void testcase(const std::string &name, void (*f)(), int argc, char * cons
 
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
+static std::string writeFile(const char code[], std::size_t size, const std::string &filename) {
+    std::string tmpfile = filename.empty() ? "code.tmp" : filename;
+    {
+        std::ofstream of(tmpfile, std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+        of.write(code, size);
+    }
+    return tmpfile;
+}
+
+static simplecpp::TokenList makeTokenListFromFstream(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename, simplecpp::OutputList *outputList)
+{
+    const std::string tmpfile = writeFile(code, size, filename);
+    std::ifstream fin(tmpfile);
+    simplecpp::TokenList tokenList(fin, filenames, tmpfile, outputList);
+    remove(tmpfile.c_str());
+    return tokenList;
+}
+
 static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
-    std::istringstream istr(std::string(code, size));
-    return simplecpp::TokenList(istr,filenames,filename,outputList);
+    switch (USE_INPUT) {
+        case Stringstream: {
+            std::istringstream istr(std::string(code, size));
+            return simplecpp::TokenList(istr, filenames, filename, outputList);
+        }
+        case Fstream:
+            return makeTokenListFromFstream(code, size, filenames, filename, outputList);
+    }
 }
 
 static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
@@ -811,7 +852,7 @@ static void define_va_args_4() // cppcheck trac #9754
     ASSERT_EQUALS("\nprintf ( 1 , 2 )", preprocess(code));
 }
 
-static void define_va_opt_1() 
+static void define_va_opt_1()
 {
     const char code[] = "#define p1(fmt, args...) printf(fmt __VA_OPT__(,) args)\n"
                         "p1(\"hello\");\n"
@@ -822,7 +863,7 @@ static void define_va_opt_1()
         preprocess(code));
 }
 
-static void define_va_opt_2() 
+static void define_va_opt_2()
 {
     const char code[] = "#define err(...)\\\n"
                         "__VA_OPT__(\\\n"
@@ -859,7 +900,7 @@ static void define_va_opt_3()
         toString(outputList));
 }
 
-static void define_va_opt_4() 
+static void define_va_opt_4()
 {
     // missing parenthesis
     const char code1[] = "#define err(...) __VA_OPT__ something\n"
@@ -2723,8 +2764,10 @@ static void fuzz_crash()
     }
 }
 
-int main(int argc, char **argv)
+static void runTests(int argc, char **argv, Input input)
 {
+    USE_INPUT = input;
+
     TEST_CASE(backslash);
 
     TEST_CASE(builtin);
@@ -2950,6 +2993,11 @@ int main(int argc, char **argv)
     TEST_CASE(token);
 
     TEST_CASE(fuzz_crash);
+}
 
+int main(int argc, char **argv)
+{
+    runTests(argc, argv, Stringstream);
+    runTests(argc, argv, Fstream);
     return numberOfFailedAssertions > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }
