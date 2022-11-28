@@ -221,7 +221,9 @@ namespace simplecpp {
         bool empty() const {
             return !frontToken;
         }
-        void push_back(Token *tok);
+        void push_back(const TokenString &s, const Location &loc);
+        void push_back(const Token *tok);
+        void push_back_macro(Token *tok);
 
         void dump() const;
         std::string stringify() const;
@@ -298,6 +300,8 @@ namespace simplecpp {
         bool isLastLinePreprocessor(int maxsize=100000) const;
 
         unsigned int fileIndex(const std::string &filename);
+
+        void push_back_internal(Token *tok);
 
         Token *frontToken;
         Token *backToken;
