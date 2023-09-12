@@ -441,6 +441,68 @@ private:
     int lastStatus;
 };
 
+class FileStreamBuffered : public simplecpp::TokenList::Stream {
+public:
+    FileStreamBuffered(const std::string &filename)
+        : file(fopen(filename.c_str(), "rb"))
+        , lastStatus(0)
+        , buf_len(0)
+        , buf_idx(-1)
+    {
+        init();
+    }
+
+    ~FileStreamBuffered() {
+        fclose(file);
+        file = nullptr;
+    }
+
+    virtual int get() {
+        read_internal();
+        return buf[buf_idx++];
+    }
+    virtual int peek() {
+        read_internal();
+        return buf[buf_idx];
+    }
+    virtual void unget() {
+        --buf_idx;
+    }
+    virtual bool good() {
+        return lastStatus != EOF;
+    }
+
+private:
+    void read_internal() {
+        // check if we are in the last chunk
+        if (buf_len != sizeof(buf) && buf_idx >= buf_len) {
+            lastStatus = EOF;
+            return;
+        }
+
+        if (buf_idx == -1 || buf_idx == buf_len)
+        {
+            buf_idx = 0;
+            buf_len = fread(buf, 1, sizeof(buf), file);
+            if (buf_len == 0) {
+                lastStatus = EOF;
+            }
+            else if (buf_len != sizeof(buf)) {
+                if (ferror(file)) {
+                    // TODO: is this correct?
+                    lastStatus = EOF;
+                }
+            }
+        }
+    }
+
+    FILE *file;
+    int lastStatus;
+    unsigned char buf[8192];
+    int buf_len;
+    int buf_idx;
+};
+
 simplecpp::TokenList::TokenList(std::vector<std::string> &filenames) : frontToken(nullptr), backToken(nullptr), files(filenames) {}
 
 simplecpp::TokenList::TokenList(std::istream &istr, std::vector<std::string> &filenames, const std::string &filename, OutputList *outputList)
@@ -453,7 +515,7 @@ simplecpp::TokenList::TokenList(std::istream &istr, std::vector<std::string> &fi
 simplecpp::TokenList::TokenList(const std::string &filename, std::vector<std::string> &filenames, OutputList *outputList)
         : frontToken(nullptr), backToken(nullptr), files(filenames)
 {
-    FileStream stream(filename);
+    FileStreamBuffered stream(filename);
     readfile(stream,filename,outputList);
 }
 
