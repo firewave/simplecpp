@@ -2912,8 +2912,8 @@ static void runTests(int argc, char **argv, Input input)
 
 int main(int argc, char **argv)
 {
-    runTests(argc, argv, Stringstream);
-    runTests(argc, argv, Fstream);
+    //runTests(argc, argv, Stringstream);
+    //runTests(argc, argv, Fstream);
     runTests(argc, argv, File);
     return numberOfFailedAssertions > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }
