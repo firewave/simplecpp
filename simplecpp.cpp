@@ -3326,15 +3326,16 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
 
     const bool hasInclude = isCpp17OrLater(dui);
     MacroMap macros;
-    for (std::list<std::string>::const_iterator it = dui.defines.begin(); it != dui.defines.end(); ++it) {
-        const std::string &macrostr = *it;
-        const std::string::size_type eq = macrostr.find('=');
-        const std::string::size_type par = macrostr.find('(');
-        const std::string macroname = macrostr.substr(0, std::min(eq,par));
-        if (dui.undefined.find(macroname) != dui.undefined.end())
+    for (std::list<Define>::const_iterator it = dui.defines.begin(); it != dui.defines.end(); ++it) {
+        // TODO: (
+        const std::string& lhs(it->name);
+        if (it->undef) {
+            const MacroMap::iterator m_it = macros.find(lhs);
+            if (m_it != macros.end())
+                macros.erase(m_it);
             continue;
-        const std::string lhs(macrostr.substr(0,eq));
-        const std::string rhs(eq==std::string::npos ? std::string("1") : macrostr.substr(eq+1));
+        }
+        const std::string rhs(it->value.empty() ? "1" : it->value);
         const Macro macro(lhs, rhs, dummy);
         macros.insert(std::pair<TokenString,Macro>(macro.name(), macro));
     }
@@ -3445,13 +3446,11 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
                     continue;
                 try {
                     const Macro &macro = Macro(rawtok->previous, files);
-                    if (dui.undefined.find(macro.name()) == dui.undefined.end()) {
-                        const MacroMap::iterator it = macros.find(macro.name());
-                        if (it == macros.end())
-                            macros.insert(std::pair<TokenString, Macro>(macro.name(), macro));
-                        else
-                            it->second = macro;
-                    }
+                    const MacroMap::iterator it = macros.find(macro.name());
+                    if (it == macros.end())
+                        macros.insert(std::pair<TokenString, Macro>(macro.name(), macro));
+                    else
+                        it->second = macro;
                 } catch (const std::runtime_error &) {
                     if (outputList) {
                         simplecpp::Output err(files);
@@ -3875,6 +3874,34 @@ std::string simplecpp::getCppStdString(cppstd_t std)
 std::string simplecpp::getCppStdString(const std::string &std)
 {
     return getCppStdString(getCppStd(std));
+}
+
+simplecpp::Define simplecpp::Define::parse(const std::string& def, bool prefix)
+{
+    Define define;
+    std::string::size_type offset = 0;
+    if (prefix) {
+        if (def.size() < 3)
+            throw 0;
+        if (def[0] != '-')
+            throw 0;
+        if (def[1] == 'U')
+            define.undef = true;
+        else if (def[2] != 'D')
+            throw 0;
+        offset = 2;
+    }
+    const std::string::size_type sep = def.find('=');
+    if (sep == std::string::npos) {
+        define.name = def.substr(offset);
+    }
+    else {
+        if (define.undef)
+            throw 0;
+        define.name = def.substr(offset, sep - offset);
+        define.value = def.substr(sep + 1);
+    }
+    return define;
 }
 
 #if (__cplusplus < 201103L) && !defined(__APPLE__)

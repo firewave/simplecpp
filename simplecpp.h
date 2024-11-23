@@ -332,14 +332,22 @@ namespace simplecpp {
         long long result; // condition result
     };
 
+    struct SIMPLECPP_LIB Define {
+        Define() : undef(false) {}
+        std::string name;
+        bool undef;
+        std::string value;
+
+        static Define parse(const std::string& def, bool prefix = true); /** parse -D/-U string */
+    };
+
     /**
      * Command line preprocessor settings.
      * On the command line these are configured by -D, -U, -I, --include, -std
      */
     struct SIMPLECPP_LIB DUI {
         DUI() : clearIncludeCache(false), removeComments(false) {}
-        std::list<std::string> defines;
-        std::set<std::string> undefined;
+        std::list<Define> defines;
         std::list<std::string> includePaths;
         std::list<std::string> includes;
         std::string std;
