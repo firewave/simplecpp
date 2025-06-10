@@ -1561,6 +1561,16 @@ static void has_include_5()
     ASSERT_EQUALS("", preprocess(code));
 }
 
+static void has_include_6()
+{
+    const char code[] = "#if __has_include(<sys/single_threaded.h>)\n"
+                        "  #include <sys/single_threaded.h>\n"
+                        "#endif";
+    simplecpp::OutputList outputList;
+    ASSERT_EQUALS("", preprocess(code, &outputList));
+    ASSERT_EQUALS("file0,1,syntax_error,failed to evaluate #if condition, division/modulo by zero\n", toString(outputList));
+}
+
 static void ifdef1()
 {
     const char code[] = "#ifdef A\n"
@@ -3121,6 +3131,7 @@ int main(int argc, char **argv)
     TEST_CASE(has_include_3);
     TEST_CASE(has_include_4);
     TEST_CASE(has_include_5);
+    TEST_CASE(has_include_6);
 
     TEST_CASE(ifdef1);
     TEST_CASE(ifdef2);
