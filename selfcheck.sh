@@ -1,6 +1,11 @@
 #!/bin/sh
 
-output=$(./simplecpp simplecpp.cpp -e -f 2>&1)
+VALGRIND_TOOL="memcheck"
+MEMCHECK_OPTS="--error-limit=yes --leak-check=full --num-callers=50 --show-reachable=yes --track-origins=yes --gen-suppressions=all --log-fd=9 --error-exitcode=42"
+CALLGRIND_OPTS="--tool=callgrind --log-fd=9"
+VALGRIND_CMD="valgrind $CALLGRIND_OPTS"
+
+output=$($VALGRIND_CMD ./simplecpp simplecpp.cpp -e -f 2>&1 9> valgrind_memcheck.log)
 ec=$?
 errors=$(echo "$output" | grep -v 'Header not found: <')
 if [ $ec -ne 0 ]; then
@@ -100,7 +105,7 @@ else
   exit 1
 fi
 
-./simplecpp simplecpp.cpp -e -f -std=gnu++11 $defs $inc
+$VALGRIND_CMD ./simplecpp simplecpp.cpp -e -f -std=gnu++11 $defs $inc 9> valgrind_memcheck_sys.log
 ec=$?
 if [ $ec -ne 0 ]; then
   exit $ec
