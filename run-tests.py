@@ -4,10 +4,10 @@ import os
 import subprocess
 import sys
 
-def cleanup(out):
+def cleanup(out, pp):
   ret = ''
   for s in out.decode('utf-8').split('\n'):
-    if len(s) > 1 and s[0] == '#':
+    if pp and len(s) > 1 and s[0] == '#':
       continue
     s = "".join(s.split())
     ret = ret + s
@@ -25,9 +25,9 @@ for f in sorted(glob.glob(os.path.expanduser('testsuite/clang-preprocessor-tests
       if len(cmd) > 1:
         newcmd = cmd[1:] + ' ' + f
         if not newcmd in commands:
-          commands.append(cmd[1:] + ' ' + f)
+          commands.append(cmd[1:] + ' -P ' + f)
 for f in sorted(glob.glob(os.path.expanduser('testsuite/gcc-preprocessor-tests/*.c*'))):
-  commands.append('-E ' + f)
+  commands.append('-E -P ' + f)
 
 # skipping tests..
 skip = ['assembler-with-cpp.c',
@@ -93,21 +93,21 @@ for cmd in commands:
   clang_cmd.extend(cmd.split(' '))
   p = subprocess.Popen(clang_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   comm = p.communicate()
-  clang_output = cleanup(comm[0])
+  clang_output = cleanup(comm[0], False)
 
   gcc_cmd = ['gcc']
   gcc_cmd.extend(cmd.split(' '))
   p = subprocess.Popen(gcc_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   comm = p.communicate()
-  gcc_output = cleanup(comm[0])
+  gcc_output = cleanup(comm[0], False)
 
   simplecpp_cmd = ['./simplecpp']
   # -E is not supported and we bail out on unknown options
-  simplecpp_cmd.extend(cmd.replace('-E ', '', 1).split(' '))
+  simplecpp_cmd.extend(cmd.replace('-E ', '', 1).replace('-P ', '', 1).split(' '))
   p = subprocess.Popen(simplecpp_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   comm = p.communicate()
   simplecpp_ec = p.returncode
-  simplecpp_output = cleanup(comm[0])
+  simplecpp_output = cleanup(comm[0], True)
   simplecpp_err = comm[0].decode('utf-8').strip()
 
   if simplecpp_output != clang_output and simplecpp_output != gcc_output:
