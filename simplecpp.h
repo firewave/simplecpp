@@ -11,6 +11,7 @@
 #endif
 
 #include <cctype>
+#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <list>
@@ -43,9 +44,7 @@
 #  define SIMPLECPP_LIB
 #endif
 
-#ifdef SIMPLECPP_WINDOWS
-#  include <cstdint>
-#else
+#ifndef SIMPLECPP_WINDOWS
 #  include <sys/stat.h>
 #endif
 
@@ -67,10 +66,10 @@
 
 namespace simplecpp {
     /** C code standard */
-    enum cstd_t { CUnknown=-1, C89, C99, C11, C17, C23 };
+    enum cstd_t : std::int8_t { CUnknown=-1, C89, C99, C11, C17, C23 };
 
     /** C++ code standard */
-    enum cppstd_t { CPPUnknown=-1, CPP03, CPP11, CPP14, CPP17, CPP20, CPP23, CPP26 };
+    enum cppstd_t : std::int8_t { CPPUnknown=-1, CPP03, CPP11, CPP14, CPP17, CPP20, CPP23, CPP26 };
 
     typedef std::string TokenString;
     class Macro;
@@ -208,7 +207,7 @@ namespace simplecpp {
     /** Output from preprocessor */
     struct SIMPLECPP_LIB Output {
         explicit Output(const std::vector<std::string> &files) : type(ERROR), location(files) {}
-        enum Type {
+        enum Type : std::uint8_t {
             ERROR, /* #error */
             WARNING, /* #warning */
             MISSING_HEADER,
