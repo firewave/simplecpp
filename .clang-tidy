@@ -35,7 +35,6 @@ Checks: >
         -modernize-use-equals-default,
         -modernize-use-equals-delete,
         -modernize-use-default-member-init,
-        -modernize-use-nodiscard,
         -modernize-use-override,
         -modernize-use-trailing-return-type,
         -modernize-use-using,
@@ -53,7 +52,6 @@ Checks: >
         -performance-avoid-endl,
         -performance-enum-size,
         -performance-inefficient-string-concatenation,
-        -performance-no-automatic-move,
         -performance-noexcept-move-constructor
 HeaderFilterRegex: '.*'
 WarningsAsErrors: '*'
