@@ -31,7 +31,7 @@ int main(int argc, char **argv)
             switch (c) {
             case 'D': { // define symbol
                 const char * const value = arg[2] ? (argv[i] + 2) : argv[++i];
-                dui.defines.push_back(value);
+                dui.defines.emplace_back(value);
                 found = true;
                 break;
             }
@@ -43,13 +43,13 @@ int main(int argc, char **argv)
             }
             case 'I': { // include path
                 const char * const value = arg[2] ? (argv[i] + 2) : argv[++i];
-                dui.includePaths.push_back(value);
+                dui.includePaths.emplace_back(value);
                 found = true;
                 break;
             }
             case 'i':
                 if (std::strncmp(arg, "-include=",9)==0) {
-                    dui.includes.push_back(arg+9);
+                    dui.includes.emplace_back(arg+9);
                     found = true;
                 } else if (std::strncmp(arg, "-is",3)==0) {
                     use_istream = true;
