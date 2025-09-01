@@ -135,6 +135,8 @@ namespace simplecpp {
         Token(const Token &tok) :
             macro(tok.macro), op(tok.op), comment(tok.comment), name(tok.name), number(tok.number), whitespaceahead(tok.whitespaceahead), location(tok.location), previous(nullptr), next(nullptr), nextcond(nullptr), string(tok.string), mExpandedFrom(tok.mExpandedFrom) {}
 
+        Token &operator=(const Token &tok) = delete;
+
         void flags() {
             name = (std::isalpha(static_cast<unsigned char>(string[0])) || string[0] == '_' || string[0] == '$')
                    && (std::memchr(string.c_str(), '\'', string.size()) == nullptr);
@@ -200,9 +202,6 @@ namespace simplecpp {
         TokenString string;
 
         std::set<const Macro*> mExpandedFrom;
-
-        // Not implemented - prevent assignment
-        Token &operator=(const Token &tok);
     };
 
     /** Output from preprocessor */
