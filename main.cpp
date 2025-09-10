@@ -9,6 +9,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -16,7 +17,11 @@ int main(int argc, char **argv)
 {
     bool error = false;
     const char *filename = nullptr;
-    bool use_istream = false;
+    enum {
+        File,
+        Istream,
+        CharBuffer
+    } toklist_inf = File;
     bool fail_on_error = false;
 
     // Settings..
@@ -52,7 +57,7 @@ int main(int argc, char **argv)
                     dui.includes.push_back(arg+9);
                     found = true;
                 } else if (std::strncmp(arg, "-is",3)==0) {
-                    use_istream = true;
+                    toklist_inf = Istream;
                     found = true;
                 }
                 break;
@@ -71,10 +76,22 @@ int main(int argc, char **argv)
                 found = true;
                 break;
             case 'f':
-                fail_on_error = true;
-                found = true;
-                break;
+                if (std::strncmp(arg, "-file",5)==0) {
+                    toklist_inf = File;
+                    found = true;
+                }
+                else {
+                    fail_on_error = true;
+                    found = true;
+                    break;
+                }
             }
+            case 'b':
+                if (std::strncmp(arg, "-buf",4)==0) {
+                    toklist_inf = CharBuffer;
+                    found = true;
+                }
+                break;
             if (!found) {
                 std::cout << "error: option '" << arg << "' is unknown." << std::endl;
                 error = true;
@@ -104,7 +121,9 @@ int main(int argc, char **argv)
         std::cout << "  -UNAME          Undefine NAME." << std::endl;
         std::cout << "  -std=STD        Specify standard." << std::endl;
         std::cout << "  -q              Quiet mode (no output)." << std::endl;
-        std::cout << "  -is             Use std::istream interface." << std::endl;
+        std::cout << "  -file           Use file TokenList interface (default)." << std::endl;
+        std::cout << "  -is             Use std::istream TokenList interface." << std::endl;
+        std::cout << "  -buf            Use char buffer TokenList interface." << std::endl;
         std::cout << "  -e              Output errors only." << std::endl;
         std::cout << "  -f              Fail when errors were encountered (exitcode 1)." << std::endl;
         std::exit(0);
@@ -116,14 +135,23 @@ int main(int argc, char **argv)
     simplecpp::OutputList outputList;
     std::vector<std::string> files;
     simplecpp::TokenList *rawtokens;
-    if (use_istream) {
+    if (toklist_inf == Istream ||
+        toklist_inf == CharBuffer) {
         std::ifstream f(filename);
         if (!f.is_open()) {
             std::cout << "error: could not open file '" << filename << "'" << std::endl;
             std::exit(1);
         }
-        rawtokens = new simplecpp::TokenList(f, files,filename,&outputList);
-    } else {
+        if (toklist_inf == Istream) {
+            rawtokens = new simplecpp::TokenList(f, files,filename,&outputList);
+        }
+        else {
+            std::ostringstream oss;
+            oss << f.rdbuf();
+            const std::string s = oss.str();
+            rawtokens = new simplecpp::TokenList(s.data(),s.size(),files,filename,&outputList);
+        }
+    } else if (toklist_inf == File) {
         rawtokens = new simplecpp::TokenList(filename,files,&outputList);
     }
     rawtokens->removeComments();
