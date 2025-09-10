@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     enum {
         File,
         Istream,
+        Sstream,
         CharBuffer
     } toklist_inf = File;
     bool fail_on_error = false;
@@ -64,6 +65,10 @@ int main(int argc, char **argv)
             case 's':
                 if (std::strncmp(arg, "-std=",5)==0) {
                     dui.std = arg + 5;
+                    found = true;
+                }
+                else if (std::strncmp(arg, "-ss",3)==0) {
+                    toklist_inf = Sstream;
                     found = true;
                 }
                 break;
@@ -123,6 +128,7 @@ int main(int argc, char **argv)
         std::cout << "  -q              Quiet mode (no output)." << std::endl;
         std::cout << "  -file           Use file TokenList interface (default)." << std::endl;
         std::cout << "  -is             Use std::istream TokenList interface." << std::endl;
+        std::cout << "  -ss             Use std::stringstream interface." << std::endl;
         std::cout << "  -buf            Use char buffer TokenList interface." << std::endl;
         std::cout << "  -e              Output errors only." << std::endl;
         std::cout << "  -f              Fail when errors were encountered (exitcode 1)." << std::endl;
@@ -136,6 +142,7 @@ int main(int argc, char **argv)
     std::vector<std::string> files;
     simplecpp::TokenList *rawtokens;
     if (toklist_inf == Istream ||
+        toklist_inf == Sstream ||
         toklist_inf == CharBuffer) {
         std::ifstream f(filename);
         if (!f.is_open()) {
@@ -149,7 +156,13 @@ int main(int argc, char **argv)
             std::ostringstream oss;
             oss << f.rdbuf();
             const std::string s = oss.str();
-            rawtokens = new simplecpp::TokenList(s.data(),s.size(),files,filename,&outputList);
+            if (toklist_inf == Sstream) {
+                std::istringstream iss(s);
+                rawtokens = new simplecpp::TokenList(iss,files,filename,&outputList);
+            }
+            else {
+                rawtokens = new simplecpp::TokenList(s.data(),s.size(),files,filename,&outputList);
+            }
         }
     } else if (toklist_inf == File) {
         rawtokens = new simplecpp::TokenList(filename,files,&outputList);
