@@ -1392,7 +1392,7 @@ std::string simplecpp::TokenList::readUntil(Stream &stream, const Location &loca
             err.msg = std::string("No pair for character (") + start + "). Can't process file. File is either invalid or unicode, which is currently not supported.";
             outputList->push_back(std::move(err));
         }
-        return "";
+        ret.clear();
     }
 
     return ret;
@@ -1408,8 +1408,10 @@ std::string simplecpp::TokenList::lastLine(int maxsize) const
         }
         if (tok->comment)
             continue;
-        if (++count > maxsize)
-            return "";
+        if (++count > maxsize) {
+            ret.clear();
+            break;
+        }
         if (!ret.empty())
             ret += ' ';
         // add tokens in reverse for performance reasons
