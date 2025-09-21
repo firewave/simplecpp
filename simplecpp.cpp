@@ -3087,6 +3087,25 @@ std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::get(const std::
     return {nullptr, false};
 }
 
+bool simplecpp::FileDataCache::FileID::operator==(const FileID& that) const noexcept {
+#ifdef _win32
+    return fileIdInfo.VolumeSerialNumber == that.fileIdInfo.VolumeSerialNumber &&
+           fileIdInfo.FileId.IdentifierHi == that.fileIdInfo.FileId.IdentifierHi &&
+           fileIdInfo.FileId.IdentifierLo == that.fileIdInfo.FileId.IdentifierLo;
+#else
+    return dev == that.dev && ino == that.ino;
+#endif
+}
+
+std::size_t simplecpp::FileDataCache::FileID::Hasher::operator()(const FileID &id) const {
+#ifdef _WIN32
+    return static_cast<std::size_t>(id.fileIdInfo.FileId.IdentifierHi ^ id.fileIdInfo.FileId.IdentifierLo ^
+                                    id.fileIdInfo.VolumeSerialNumber);
+#else
+    return static_cast<std::size_t>(id.dev) ^ static_cast<std::size_t>(id.ino);
+#endif
+}
+
 bool simplecpp::FileDataCache::getFileId(const std::string &path, FileID &id)
 {
 #ifdef _WIN32
