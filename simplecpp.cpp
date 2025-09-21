@@ -3,20 +3,6 @@
  * Copyright (C) 2016-2023 simplecpp team
  */
 
-#if defined(_WIN32)
-#  ifndef _WIN32_WINNT
-#    define _WIN32_WINNT 0x0602
-#  endif
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#  endif
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
-#  include <windows.h>
-#  undef ERROR
-#endif
-
 #include "simplecpp.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
@@ -56,6 +42,21 @@
 #  include <direct.h>
 #else
 #  include <sys/stat.h>
+#  include <sys/types.h>
+#endif
+
+#if defined(_WIN32)
+#  ifndef _WIN32_WINNT
+#    define _WIN32_WINNT 0x0602
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif
+#  include <windows.h>
+#  undef ERROR
 #endif
 
 static bool isHex(const std::string &s)
@@ -3046,6 +3047,79 @@ static std::string openHeader(std::ifstream &f, const simplecpp::DUI &dui, const
     return "";
 }
 
+struct FileID {
+#ifdef _WIN32
+    struct {
+        std::uint64_t VolumeSerialNumber;
+        struct {
+            std::uint64_t IdentifierHi;
+            std::uint64_t IdentifierLo;
+        } FileId;
+    } fileIdInfo;
+#else
+    dev_t dev;
+    ino_t ino;
+#endif
+    bool operator==(const FileID& that) const noexcept {
+#ifdef _win32
+        return fileIdInfo.VolumeSerialNumber == that.fileIdInfo.VolumeSerialNumber &&
+               fileIdInfo.FileId.IdentifierHi == that.fileIdInfo.FileId.IdentifierHi &&
+               fileIdInfo.FileId.IdentifierLo == that.fileIdInfo.FileId.IdentifierLo;
+#else
+        return dev == that.dev && ino == that.ino;
+#endif
+    }
+
+    struct Hasher {
+        std::size_t operator()(const FileID &id) const {
+#ifdef _WIN32
+            return static_cast<std::size_t>(id.fileIdInfo.FileId.IdentifierHi ^ id.fileIdInfo.FileId.IdentifierLo ^
+                                            id.fileIdInfo.VolumeSerialNumber);
+#else
+            return static_cast<std::size_t>(id.dev) ^ static_cast<std::size_t>(id.ino);
+#endif
+        }
+    };
+};
+
+struct simplecpp::FileDataCache::Impl
+{
+    void clear()
+    {
+        mIdMap.clear();
+    }
+
+    using id_map_type = std::unordered_map<FileID, FileData *, FileID::Hasher>;
+
+    id_map_type mIdMap;
+};
+
+static bool getFileId(const std::string &path, FileID &id)
+{
+#ifdef _WIN32
+    HANDLE hFile = CreateFileA(path.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE)
+        return false;
+
+    const BOOL ret = GetFileInformationByHandleEx(hFile, FileIdInfo, &id.fileIdInfo, sizeof(id.fileIdInfo));
+
+    CloseHandle(hFile);
+
+    return ret == TRUE;
+#else
+    struct stat statbuf;
+
+    if (stat(path.c_str(), &statbuf) != 0)
+        return false;
+
+    id.dev = statbuf.st_dev;
+    id.ino = statbuf.st_ino;
+
+    return true;
+#endif
+}
+
 std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::tryload(FileDataCache::name_map_type::iterator &name_it, const simplecpp::DUI &dui, std::vector<std::string> &filenames, simplecpp::OutputList *outputList)
 {
     const std::string &path = name_it->first;
@@ -3054,8 +3128,8 @@ std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::tryload(FileDat
     if (!getFileId(path, fileId))
         return {nullptr, false};
 
-    const auto id_it = mIdMap.find(fileId);
-    if (id_it != mIdMap.end()) {
+    const auto id_it = mImpl->mIdMap.find(fileId);
+    if (id_it != mImpl->mIdMap.end()) {
         name_it->second = id_it->second;
         return {id_it->second, false};
     }
@@ -3066,11 +3140,15 @@ std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::tryload(FileDat
         data->tokens.removeComments();
 
     name_it->second = data;
-    mIdMap.emplace(fileId, data);
+    mImpl->mIdMap.emplace(fileId, data);
     mData.emplace_back(data);
 
     return {data, true};
 }
+
+simplecpp::FileDataCache::FileDataCache()
+    : mImpl(new Impl)
+{}
 
 std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::get(const std::string &sourcefile, const std::string &header, const simplecpp::DUI &dui, bool systemheader, std::vector<std::string> &filenames, simplecpp::OutputList *outputList)
 {
@@ -3118,30 +3196,10 @@ std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::get(const std::
     return {nullptr, false};
 }
 
-bool simplecpp::FileDataCache::getFileId(const std::string &path, FileID &id)
-{
-#ifdef _WIN32
-    HANDLE hFile = CreateFileA(path.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (hFile == INVALID_HANDLE_VALUE)
-        return false;
-
-    const BOOL ret = GetFileInformationByHandleEx(hFile, FileIdInfo, &id.fileIdInfo, sizeof(id.fileIdInfo));
-
-    CloseHandle(hFile);
-
-    return ret == TRUE;
-#else
-    struct stat statbuf;
-
-    if (stat(path.c_str(), &statbuf) != 0)
-        return false;
-
-    id.dev = statbuf.st_dev;
-    id.ino = statbuf.st_ino;
-
-    return true;
-#endif
+void simplecpp::FileDataCache::clear() {
+    mImpl->clear();
+    mNameMap.clear();
+    mData.clear();
 }
 
 simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, FileDataCache cache)
