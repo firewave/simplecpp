@@ -3106,32 +3106,6 @@ std::size_t simplecpp::FileDataCache::FileID::Hasher::operator()(const FileID &i
 #endif
 }
 
-bool simplecpp::FileDataCache::getFileId(const std::string &path, FileID &id)
-{
-#ifdef _WIN32
-    HANDLE hFile = CreateFileA(path.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if (hFile == INVALID_HANDLE_VALUE)
-        return false;
-
-    const BOOL ret = GetFileInformationByHandleEx(hFile, FileIdInfo, &id.fileIdInfo, sizeof(id.fileIdInfo));
-
-    CloseHandle(hFile);
-
-    return ret == TRUE;
-#else
-    struct stat statbuf;
-
-    if (stat(path.c_str(), &statbuf) != 0)
-        return false;
-
-    id.dev = statbuf.st_dev;
-    id.ino = statbuf.st_ino;
-
-    return true;
-#endif
-}
-
 simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, FileDataCache cache)
 {
 #ifdef SIMPLECPP_WINDOWS

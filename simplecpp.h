@@ -466,6 +466,9 @@ namespace simplecpp {
         }
 
     private:
+        struct FileDataCacheImpl;
+        std::unique_ptr<FileDataCacheImpl> mImpl;
+
         struct FileID {
 #ifdef _WIN32
             struct {
@@ -488,8 +491,6 @@ namespace simplecpp {
 
         using name_map_type = std::unordered_map<std::string, FileData *>;
         using id_map_type = std::unordered_map<FileID, FileData *, FileID::Hasher>;
-
-        static bool getFileId(const std::string &path, FileID &id);
 
         std::pair<FileData *, bool> tryload(name_map_type::iterator &name_it, const DUI &dui, std::vector<std::string> &filenames, OutputList *outputList);
 
