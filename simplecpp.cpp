@@ -3790,8 +3790,8 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
     }
 
     if (macroUsage) {
-        for (simplecpp::MacroMap::const_iterator macroIt = macros.begin(); macroIt != macros.end(); ++macroIt) {
-            const Macro &macro = macroIt->second;
+        for (const auto& macroIt : macros) {
+            const Macro &macro = macroIt.second;
             std::list<Location> usage = macro.usage();
             const std::list<Location>& temp = maybeUsedMacros[macro.name()];
             usage.insert(usage.end(), temp.begin(), temp.end());
