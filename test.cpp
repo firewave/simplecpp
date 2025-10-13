@@ -3455,13 +3455,13 @@ static void bad_macro_syntax() // #616
 }
 
 static void isAbsolutePath() {
-#if defined(_WIN32) || defined(__CYGWIN__) || defined(__MSYS__)
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MSYS__)
     constexpr bool supportsWin = true;
 #else
     constexpr bool supportsWin = false;
 #endif
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) || defined(__MINGW32__)
     constexpr bool supportsUnx = true;
 #else
     constexpr bool supportsUnx = false;
