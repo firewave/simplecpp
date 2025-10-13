@@ -42,8 +42,10 @@ jobs:
       - name: make simplecpp
         shell: cmd
         run: |
+          echo ${{ env.GITHUB_WORKSPACE }}
           pwd
           ls -l
+          g++ -c test.cpp
           make -j1 CXXOPTS="-Werror"
 
       - name: make simplecpp
