@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$SIMPLECPP_EXE" ]; then
+  SIMPLECPP_EXE=./simplecpp
+fi
+
 if [ -z "$SIMPLECPP_PATH" ]; then
   SIMPLECPP_PATH=.
 fi
@@ -20,7 +24,7 @@ else
   VALGRIND_REDIRECT="/dev/null"
 fi
 
-output=$($VALGRIND_CMD ./simplecpp "$SIMPLECPP_PATH/simplecpp.cpp" -e -f 2>&1 9> "$VALGRIND_REDIRECT")
+output=$($VALGRIND_CMD "$SIMPLECPP_EXE" "$SIMPLECPP_PATH/simplecpp.cpp" -e -f 2>&1 9> "$VALGRIND_REDIRECT")
 ec=$?
 cat "$VALGRIND_REDIRECT"
 errors=$(echo "$output" | grep -v 'Header not found: <')
@@ -125,7 +129,7 @@ else
 fi
 
 # run with -std=gnuc++* so __has_include(...) is available
-$VALGRIND_CMD ./simplecpp "$SIMPLECPP_PATH/simplecpp.cpp" -e -f -std=gnu++11 $defs $inc 9> "$VALGRIND_REDIRECT"
+$VALGRIND_CMD "$SIMPLECPP_EXE" "$SIMPLECPP_PATH/simplecpp.cpp" -e -f -std=gnu++11 $defs $inc 9> "$VALGRIND_REDIRECT"
 ec=$?
 cat "$VALGRIND_REDIRECT"
 if [ $ec -ne 0 ]; then
