@@ -406,6 +406,7 @@ namespace simplecpp {
     class SIMPLECPP_LIB FileDataCache {
     public:
         FileDataCache();
+        ~FileDataCache();
 
         FileDataCache(const FileDataCache &) = delete;
         FileDataCache(FileDataCache &&) = default;

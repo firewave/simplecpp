@@ -3150,6 +3150,8 @@ simplecpp::FileDataCache::FileDataCache()
     : mImpl(new Impl)
 {}
 
+simplecpp::FileDataCache::~FileDataCache() = default;
+
 std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::get(const std::string &sourcefile, const std::string &header, const simplecpp::DUI &dui, bool systemheader, std::vector<std::string> &filenames, simplecpp::OutputList *outputList)
 {
     if (isAbsolutePath(header)) {
