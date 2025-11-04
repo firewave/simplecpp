@@ -2242,7 +2242,7 @@ static void circularInclude()
         const char code[] = "#include \"test.h\"\n";
         const simplecpp::TokenList rawtokens = makeTokenList(code, files, "test.cpp");
 
-        cache = simplecpp::load(rawtokens, filenames, dui, &outputList, std::move(cache));
+        simplecpp::load(rawtokens, filenames, dui, &outputList, &cache);
         simplecpp::preprocess(tokens2, rawtokens, files, cache, dui, &outputList);
     }
 

@@ -3204,7 +3204,7 @@ void simplecpp::FileDataCache::clear() {
     mData.clear();
 }
 
-simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, FileDataCache cache)
+void simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, FileDataCache* cache)
 {
 #ifdef SIMPLECPP_WINDOWS
     if (dui.clearIncludeCache)
@@ -3217,7 +3217,7 @@ simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, 
     for (auto it = dui.includes.cbegin(); it != dui.includes.cend(); ++it) {
         const std::string &filename = *it;
 
-        const auto loadResult = cache.get("", filename, dui, false, filenames, outputList);
+        const auto loadResult = cache->get("", filename, dui, false, filenames, outputList);
         const bool loaded = loadResult.second;
         FileData *const filedata = loadResult.first;
 
@@ -3267,7 +3267,7 @@ simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, 
         const bool systemheader = (htok->str()[0] == '<');
         const std::string header(htok->str().substr(1U, htok->str().size() - 2U));
 
-        const auto loadResult = cache.get(sourcefile, header, dui, systemheader, filenames, outputList);
+        const auto loadResult = cache->get(sourcefile, header, dui, systemheader, filenames, outputList);
         const bool loaded = loadResult.second;
 
         if (!loaded)
@@ -3283,8 +3283,6 @@ simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, 
 
         filelist.push_back(filedata->tokens.front());
     }
-
-    return cache;
 }
 
 static bool preprocessToken(simplecpp::TokenList &output, const simplecpp::Token **tok1, simplecpp::MacroMap &macros, std::vector<std::string> &files, simplecpp::OutputList *outputList)

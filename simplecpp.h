@@ -409,10 +409,10 @@ namespace simplecpp {
         ~FileDataCache();
 
         FileDataCache(const FileDataCache &) = delete;
-        FileDataCache(FileDataCache &&) = default;
+        FileDataCache(FileDataCache &&) = delete;
 
         FileDataCache &operator=(const FileDataCache &) = delete;
-        FileDataCache &operator=(FileDataCache &&) = default;
+        FileDataCache &operator=(FileDataCache &&) = delete;
 
         /** Get the cached data for a file, or load and then return it if it isn't cached.
          *  returns the file data and true if the file was loaded, false if it was cached. */
@@ -469,7 +469,7 @@ namespace simplecpp {
 
     SIMPLECPP_LIB long long characterLiteralToLL(const std::string& str);
 
-    SIMPLECPP_LIB FileDataCache load(const TokenList &rawtokens, std::vector<std::string> &filenames, const DUI &dui, OutputList *outputList = nullptr, FileDataCache cache = {});
+    SIMPLECPP_LIB void load(const TokenList &rawtokens, std::vector<std::string> &filenames, const DUI &dui, OutputList *outputList = nullptr, FileDataCache *cache = nullptr);
 
     /**
      * Preprocess
