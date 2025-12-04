@@ -3367,7 +3367,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
         const std::string rhs(eq==std::string::npos ? std::string("1") : macrostr.substr(eq+1));
         try {
             const Macro macro(lhs, rhs, dummy);
-            macros.insert(std::pair<TokenString,Macro>(macro.name(), macro));
+            macros.emplace(macro.name(), macro);
         } catch (const std::runtime_error& e) {
             if (outputList) {
                 simplecpp::Output err{
@@ -3384,22 +3384,22 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
 
     const bool strictAnsiUndefined = dui.undefined.find("__STRICT_ANSI__") != dui.undefined.cend();
     if (!isGnu(dui) && !strictAnsiDefined && !strictAnsiUndefined)
-        macros.insert(std::pair<TokenString, Macro>("__STRICT_ANSI__", Macro("__STRICT_ANSI__", "1", dummy)));
+        macros.emplace("__STRICT_ANSI__", Macro("__STRICT_ANSI__", "1", dummy));
 
-    macros.insert(std::make_pair("__FILE__", Macro("__FILE__", "__FILE__", dummy)));
-    macros.insert(std::make_pair("__LINE__", Macro("__LINE__", "__LINE__", dummy)));
-    macros.insert(std::make_pair("__COUNTER__", Macro("__COUNTER__", "__COUNTER__", dummy)));
+    macros.emplace("__FILE__", Macro("__FILE__", "__FILE__", dummy));
+    macros.emplace("__LINE__", Macro("__LINE__", "__LINE__", dummy));
+    macros.emplace("__COUNTER__", Macro("__COUNTER__", "__COUNTER__", dummy));
     struct tm ltime {};
     getLocaltime(ltime);
-    macros.insert(std::make_pair("__DATE__", Macro("__DATE__", getDateDefine(&ltime), dummy)));
-    macros.insert(std::make_pair("__TIME__", Macro("__TIME__", getTimeDefine(&ltime), dummy)));
+    macros.emplace("__DATE__", Macro("__DATE__", getDateDefine(&ltime), dummy));
+    macros.emplace("__TIME__", Macro("__TIME__", getTimeDefine(&ltime), dummy));
 
     if (!dui.std.empty()) {
         const cstd_t c_std = simplecpp::getCStd(dui.std);
         if (c_std != CUnknown) {
             const std::string std_def = simplecpp::getCStdString(c_std);
             if (!std_def.empty())
-                macros.insert(std::make_pair("__STDC_VERSION__", Macro("__STDC_VERSION__", std_def, dummy)));
+                macros.emplace("__STDC_VERSION__", Macro("__STDC_VERSION__", std_def, dummy));
         } else {
             const cppstd_t cpp_std = simplecpp::getCppStd(dui.std);
             if (cpp_std == CPPUnknown) {
@@ -3416,7 +3416,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
             }
             const std::string std_def = simplecpp::getCppStdString(cpp_std);
             if (!std_def.empty())
-                macros.insert(std::make_pair("__cplusplus", Macro("__cplusplus", std_def, dummy)));
+                macros.emplace("__cplusplus", Macro("__cplusplus", std_def, dummy));
         }
     }
 
@@ -3503,7 +3503,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
                     if (dui.undefined.find(macro.name()) == dui.undefined.end()) {
                         const MacroMap::iterator it = macros.find(macro.name());
                         if (it == macros.end())
-                            macros.insert(std::pair<TokenString, Macro>(macro.name(), macro));
+                            macros.emplace(macro.name(), macro);
                         else
                             it->second = macro;
                     }
