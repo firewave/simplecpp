@@ -372,6 +372,16 @@ static void characterLiteral()
 
     ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xa0\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
     ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xbf\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+    // TODO: throw std::runtime_error("expected a character literal");
+    // TODO: throw std::runtime_error("raw single quotes and newlines not allowed in character literals");
+    // TODO: throw std::runtime_error("multiple characters only supported in narrow character literals");
+    // TODO: throw std::runtime_error("unexpected end of character literal");
+    // TODO: throw std::runtime_error("surrogate code points not allowed in universal character names");
+    // TODO: throw std::runtime_error("assumed UTF-8 encoded source, but character literal ends unexpectedly");
+    // TODO: throw std::runtime_error("numeric escape sequence too large");
+    // TODO: throw std::runtime_error("missing closing quote in character literal");
+    // TODO: throw std::runtime_error("empty character literal");
 }
 
 static void combineOperators_floatliteral()

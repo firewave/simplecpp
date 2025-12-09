@@ -2846,7 +2846,7 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
                 // UTF-8 encodes code points above 0x7f in multiple code units
                 // code points above 0x10ffff are not allowed
                 if (((narrow || utf8) && value > 0x7f) || (utf16 && value > 0xffff) || value > 0x10ffff)
-                    throw std::runtime_error("code point too large");
+                    throw std::runtime_error("code point too large"); // TODO: make unique
 
                 if (value >= 0xd800 && value <= 0xdfff)
                     throw std::runtime_error("surrogate code points not allowed in universal character names");
@@ -2867,7 +2867,7 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
 
                 int additional_bytes;
                 if (value >= 0xf5)  // higher values would result in code points above 0x10ffff
-                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
+                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid"); // TODO: make unique
                 if (value >= 0xf0)
                     additional_bytes = 3;
                 else if (value >= 0xe0)
@@ -2875,7 +2875,7 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
                 else if (value >= 0xc2) // 0xc0 and 0xc1 are always overlong 2-bytes encodings
                     additional_bytes = 1;
                 else
-                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
+                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid"); // TODO: make unique
 
                 value &= (1 << (6 - additional_bytes)) - 1;
 
@@ -2888,16 +2888,16 @@ long long simplecpp::characterLiteralToLL(const std::string& str)
                     if (((c >> 6) != 2)    // ensure c has form 0xb10xxxxxx
                         || (!value && additional_bytes == 1 && c < 0xa0)    // overlong 3-bytes encoding
                         || (!value && additional_bytes == 2 && c < 0x90))   // overlong 4-bytes encoding
-                        throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
+                        throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid"); // TODO: make unique
 
                     value = (value << 6) | (c & ((1 << 7) - 1));
                 }
 
                 if (value >= 0xd800 && value <= 0xdfff)
-                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid");
+                    throw std::runtime_error("assumed UTF-8 encoded source, but sequence is invalid"); // TODO: make unique
 
                 if ((utf8 && value > 0x7f) || (utf16 && value > 0xffff) || value > 0x10ffff)
-                    throw std::runtime_error("code point too large");
+                    throw std::runtime_error("code point too large"); // TODO: make unique
             }
         }
 
