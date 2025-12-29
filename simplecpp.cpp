@@ -3301,27 +3301,29 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
         nonExistingFilesCache.clear();
 #endif
 
-    std::map<std::string, std::size_t> sizeOfType(rawtokens.sizeOfType);
-    sizeOfType.emplace("char", sizeof(char));
-    sizeOfType.emplace("short", sizeof(short));
-    sizeOfType.emplace("short int", sizeOfType["short"]);
-    sizeOfType.emplace("int", sizeof(int));
-    sizeOfType.emplace("long", sizeof(long));
-    sizeOfType.emplace("long int", sizeOfType["long"]);
-    sizeOfType.emplace("long long", sizeof(long long));
-    sizeOfType.emplace("float", sizeof(float));
-    sizeOfType.emplace("double", sizeof(double));
-    sizeOfType.emplace("long double", sizeof(long double));
-    sizeOfType.emplace("char *", sizeof(char *));
-    sizeOfType.emplace("short *", sizeof(short *));
-    sizeOfType.emplace("short int *", sizeOfType["short *"]);
-    sizeOfType.emplace("int *", sizeof(int *));
-    sizeOfType.emplace("long *", sizeof(long *));
-    sizeOfType.emplace("long int *", sizeOfType["long *"]);
-    sizeOfType.emplace("long long *", sizeof(long long *));
-    sizeOfType.emplace("float *", sizeof(float *));
-    sizeOfType.emplace("double *", sizeof(double *));
-    sizeOfType.emplace("long double *", sizeof(long double *));
+    std::map<std::string, std::size_t> sizeOfType = {
+        { "char", sizeof(char) },
+        { "short", sizeof(short) },
+        { "short int", sizeOfType["short"] },
+        { "int", sizeof(int) },
+        { "long", sizeof(long) },
+        { "long int", sizeOfType["long"] },
+        { "long long", sizeof(long long) },
+        { "float", sizeof(float) },
+        { "double", sizeof(double) },
+        { "long double", sizeof(long double) },
+        { "char *", sizeof(char *) },
+        { "short *", sizeof(short *) },
+        { "short int *", sizeOfType["short *"] },
+        { "int *", sizeof(int *) },
+        { "long *", sizeof(long *) },
+        { "long int *", sizeOfType["long *"] },
+        { "long long *", sizeof(long long *) },
+        { "float *", sizeof(float *) },
+        { "double *", sizeof(double *) },
+        { "long double *", sizeof(long double *) }
+    };
+    sizeOfType.insert(rawtokens.sizeOfType.cbegin(), rawtokens.sizeOfType.cend());
 
     // use a dummy vector for the macros because as this is not part of the file and would add an empty entry - e.g. /usr/include/poll.h
     std::vector<std::string> dummy;
