@@ -3301,7 +3301,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
         nonExistingFilesCache.clear();
 #endif
 
-    std::map<std::string, std::size_t> sizeOfType = {
+    static const std::map<std::string, std::size_t> sizeOfType_s = {
         { "char", sizeof(char) },
         { "short", sizeof(short) },
         { "short int", sizeof(short) },
@@ -3323,7 +3323,12 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
         { "double *", sizeof(double *) },
         { "long double *", sizeof(long double *) }
     };
-    sizeOfType.insert(rawtokens.sizeOfType.cbegin(), rawtokens.sizeOfType.cend());
+    const auto insertSizeOfType = [&](){
+        std::map<std::string, std::size_t> m = sizeOfType_s;
+        m.insert(rawtokens.sizeOfType.cbegin(), rawtokens.sizeOfType.cend());
+        return m;
+    };
+    const std::map<std::string, std::size_t>& sizeOfType = rawtokens.sizeOfType.empty() ? sizeOfType_s : insertSizeOfType();
 
     // use a dummy vector for the macros because as this is not part of the file and would add an empty entry - e.g. /usr/include/poll.h
     std::vector<std::string> dummy;
