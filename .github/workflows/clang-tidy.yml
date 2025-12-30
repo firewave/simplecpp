@@ -42,7 +42,7 @@ jobs:
 
       - name: Prepare CMake
         run: |
-          cmake -S . -B cmake.output -Werror=dev --warn-uninitialized -DCMAKE_COMPILE_WARNING_AS_ERROR=On -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=14
+          cmake -S . -B cmake.output -Werror=dev --warn-uninitialized -DCMAKE_COMPILE_WARNING_AS_ERROR=On -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_STANDARD=23
         env:
           CXX: clang-21
 
