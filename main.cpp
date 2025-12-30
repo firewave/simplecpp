@@ -5,7 +5,6 @@
 
 #include "simplecpp.h"
 
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
