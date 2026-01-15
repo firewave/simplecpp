@@ -3193,13 +3193,17 @@ static void stdEnum()
     ASSERT_EQUALS(simplecpp::cstd_t::C89, simplecpp::getCStd("c89"));
     ASSERT_EQUALS(simplecpp::cstd_t::C89, simplecpp::getCStd("c90"));
     ASSERT_EQUALS(simplecpp::cstd_t::C11, simplecpp::getCStd("iso9899:2011"));
-    ASSERT_EQUALS(simplecpp::cstd_t::C23, simplecpp::getCStd("gnu23"));
+    ASSERT_EQUALS(simplecpp::cstd_t::C17, simplecpp::getCStd("c18"));
+    ASSERT_EQUALS(simplecpp::cstd_t::C23, simplecpp::getCStd("gnu2x"));
+    ASSERT_EQUALS(simplecpp::cstd_t::C2Y, simplecpp::getCStd("gnu2y"));
     ASSERT_EQUALS(simplecpp::cstd_t::CUnknown, simplecpp::getCStd("gnu77"));
+
     ASSERT_EQUALS(simplecpp::cstd_t::CUnknown, simplecpp::getCStd("c++11"));
 
     ASSERT_EQUALS(simplecpp::cppstd_t::CPP03, simplecpp::getCppStd("c++03"));
     ASSERT_EQUALS(simplecpp::cppstd_t::CPP03, simplecpp::getCppStd("c++98"));
     ASSERT_EQUALS(simplecpp::cppstd_t::CPP17, simplecpp::getCppStd("c++1z"));
+    ASSERT_EQUALS(simplecpp::cppstd_t::CPP23, simplecpp::getCppStd("gnu++2b"));
     ASSERT_EQUALS(simplecpp::cppstd_t::CPP26, simplecpp::getCppStd("gnu++26"));
     ASSERT_EQUALS(simplecpp::cppstd_t::CPPUnknown, simplecpp::getCppStd("gnu++77"));
     ASSERT_EQUALS(simplecpp::cppstd_t::CPPUnknown, simplecpp::getCppStd("c11"));

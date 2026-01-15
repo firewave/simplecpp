@@ -14,8 +14,11 @@ test.o: CXXFLAGS += -Wno-multichar
 %.o: %.cpp	simplecpp.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
 
+simplecpp.o: simplecpp.cpp
+	$(CXX) $(CPPFLAGS) -fprofile-instr-generate -fcoverage-mapping -c -o $@ simplecpp.cpp
+
 testrunner:	test.o	simplecpp.o
-	$(CXX) $(LDFLAGS) simplecpp.o test.o -o testrunner
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) simplecpp.o test.o -o testrunner
 
 test:	testrunner	simplecpp
 	./testrunner
@@ -26,7 +29,7 @@ selfcheck:	simplecpp
 	CXX=$(CXX) ./selfcheck.sh
 
 simplecpp:	main.o simplecpp.o
-	$(CXX) $(LDFLAGS) main.o simplecpp.o -o simplecpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) main.o simplecpp.o -o simplecpp
 
 clean:
 	rm -f testrunner simplecpp *.o
