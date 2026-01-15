@@ -3001,7 +3001,7 @@ public:
     }
 
 private:
-    std::set<std::string> m_pathSet;
+    std::set<std::string> m_pathSet GUARDED_BY(m_mutex);
     std::mutex m_mutex;
 };
 
