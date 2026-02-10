@@ -37,32 +37,6 @@ static int numberOfFailedAssertions = 0;
 #define ASSERT_EQUALS(expected, actual)  (assertEquals((expected), (actual), __LINE__))
 #define ASSERT_THROW_EQUALS(stmt, e, expected) do { try { stmt; assertThrowFailed(__LINE__); } catch (const e& ex) { assertEquals((expected), (ex.what()), __LINE__); } } while (false)
 
-#ifndef __has_cpp_attribute
-#define __has_cpp_attribute(x) 0
-#endif
-
-#if __has_cpp_attribute (noreturn) \
-    || (defined(__GNUC__) && (__GNUC__ >= 5)) \
-    || defined(__clang__) \
-    || defined(__CPPCHECK__)
-#  define NORETURN [[noreturn]]
-#elif defined(__GNUC__)
-#  define NORETURN __attribute__((noreturn))
-#else
-#  define NORETURN
-#endif
-
-NORETURN static void unreachable()
-{
-#if defined(__GNUC__)
-    __builtin_unreachable();
-#elif defined(_MSC_VER)
-    __assume(false);
-#else
-#  error "no unreachable implementation"
-#endif
-}
-
 static std::string pprint(const std::string &in)
 {
     std::string ret;
@@ -74,6 +48,8 @@ static std::string pprint(const std::string &in)
     return ret;
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4705) // warning C4715: 'inputString': not all control paths return a value
 static const char* inputString(Input input) {
     switch (input) {
     case Input::Stringstream:
@@ -81,9 +57,8 @@ static const char* inputString(Input input) {
     case Input::CharBuffer:
         return "CharBuffer";
     }
-
-    unreachable();
 }
+#pragma warning(pop)
 
 static int assertEquals(const std::string &expected, const std::string &actual, int line)
 {
@@ -125,6 +100,8 @@ static void testcase(const std::string &name, void (*f)(), int argc, char * cons
 
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
+#pragma warning(push)
+#pragma warning(disable: 4705) // warning C4715: 'inputString': not all control paths return a value
 static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
     switch (USE_INPUT) {
@@ -135,9 +112,8 @@ static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, s
     case Input::CharBuffer:
         return {{code, size}, filenames, filename, outputList};
     }
-
-    unreachable();
 }
+#pragma warning(pop)
 
 static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
