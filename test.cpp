@@ -101,7 +101,7 @@ static void testcase(const std::string &name, void (*f)(), int argc, char * cons
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
 #pragma warning(push)
-#pragma warning(disable: 4705) // warning C4715: 'inputString': not all control paths return a value
+#pragma warning(disable: 4705) // warning C4715: 'makeTokenList': not all control paths return a value
 static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
     switch (USE_INPUT) {
