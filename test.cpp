@@ -48,8 +48,10 @@ static std::string pprint(const std::string &in)
     return ret;
 }
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4705) // warning C4715: 'inputString': not all control paths return a value
+#endif
 static const char* inputString(Input input) {
     switch (input) {
     case Input::Stringstream:
@@ -58,7 +60,9 @@ static const char* inputString(Input input) {
         return "CharBuffer";
     }
 }
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 
 static int assertEquals(const std::string &expected, const std::string &actual, int line)
 {
@@ -100,8 +104,10 @@ static void testcase(const std::string &name, void (*f)(), int argc, char * cons
 
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4705) // warning C4715: 'makeTokenList': not all control paths return a value
+#endif
 static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
     switch (USE_INPUT) {
@@ -113,7 +119,9 @@ static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, s
         return {{code, size}, filenames, filename, outputList};
     }
 }
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 
 static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
 {
