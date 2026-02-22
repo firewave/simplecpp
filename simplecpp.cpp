@@ -435,12 +435,12 @@ namespace {
         }
 
         int get() override {
-            lastStatus = lastCh = fgetc(file);
+            lastStatus = lastCh = fgetc_unlocked(file);
             return lastCh;
         }
         int peek() override {
             // keep lastCh intact
-            const int ch = fgetc(file);
+            const int ch = fgetc_unlocked(file);
             unget_internal(ch);
             return ch;
         }
