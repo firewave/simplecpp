@@ -25,7 +25,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cctype>
+#include <cctype>nullptr
 #include <climits>
 #include <cstddef> // IWYU pragma: keep
 #include <cstdint>
@@ -33,6 +33,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <istream>
@@ -47,6 +48,8 @@
 #ifdef SIMPLECPP_WINDOWS
 #  include <mutex>
 #endif
+#include <sys/mman.h>
+#include <unistd.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -417,9 +420,9 @@ namespace {
          */
         // cppcheck-suppress uninitDerivedMemberVar - we call Stream::init() to initialize the private members
         explicit FileStream(const std::string &filename, std::vector<std::string> &files)
-            : file(fopen(filename.c_str(), "rb"))
+            : file(open(filename.c_str(), O_RDONLY))
         {
-            if (!file) {
+            if (file == -1) {
                 files.emplace_back(filename);
                 throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, {}, "File is missing: " + filename);
             }
@@ -430,29 +433,35 @@ namespace {
         FileStream &operator=(const FileStream&) = delete;
 
         ~FileStream() override {
-            fclose(file);
-            file = nullptr;
+            close(file);
+            file = -1;
         }
 
         int get() override {
-            lastStatus = lastCh = fgetc(file);
+            if (lastPeek == -1) {
+                read(file, &lastCh, 1);
+                lastStatus = lastCh;
+            } else {
+                lastStatus = lastCh = lastPeek;
+                lastPeek = -1;
+            }
             return lastCh;
         }
         int peek() override {
             // keep lastCh intact
-            const int ch = fgetc(file);
-            unget_internal(ch);
-            return ch;
+            if (lastPeek == -1)
+                read(file, &lastPeek, 1);
+            return lastPeek;
         }
         void unget() override {
-            unget_internal(lastCh);
+            //unget_internal(lastCh);
         }
         bool good() override {
             return lastStatus != EOF;
         }
 
     private:
-        void unget_internal(int ch) {
+        /*void unget_internal(int ch) {
             if (isUtf16) {
                 // TODO: use ungetc() as well
                 // UTF-16 has subsequent unget() calls
@@ -460,11 +469,12 @@ namespace {
             } else {
                 ungetc(ch, file);
             }
-        }
+        }*/
 
-        FILE *file;
+        int file;
         int lastCh{};
         int lastStatus{};
+        int lastPeek{};
     };
 }
 
