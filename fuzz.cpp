@@ -20,16 +20,15 @@
 */
 static int doProcess(const uint8_t *data, size_t dataSize)
 {
-    simplecpp::OutputList outputList;
     std::vector<std::string> files;
-    simplecpp::TokenList rawtokens(data, dataSize, files, "test.cpp", &outputList);
+    const char buf[] = "";
+    simplecpp::TokenList rawtokens(buf, files, "test.cpp");
 
     simplecpp::TokenList outputTokens(files);
     simplecpp::FileDataCache filedata;
-    const simplecpp::DUI dui;
-    std::list<simplecpp::MacroUsage> macroUsage;
-    std::list<simplecpp::IfCond> ifCond;
-    simplecpp::preprocess(outputTokens, rawtokens, files, filedata, dui, &outputList, &macroUsage, &ifCond);
+    simplecpp::DUI dui;
+    dui.defines.emplace_back(std::string(reinterpret_cast<const char*>(data), dataSize));
+    simplecpp::preprocess(outputTokens, rawtokens, files, filedata, dui);
 
     simplecpp::cleanup(filedata);
 
