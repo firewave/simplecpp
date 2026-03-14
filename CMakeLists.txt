@@ -83,6 +83,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # we are not interested in these
     set_source_files_properties(test.cpp PROPERTIES COMPILE_FLAGS "-Wno-multichar -Wno-four-char-constants")
 
+    # TODO: AppleClang does not align with regular Clang
     if (CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 14 OR CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14)
         # TODO: verify this regression still exists in clang-15
         if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
