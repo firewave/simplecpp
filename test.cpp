@@ -65,7 +65,7 @@ static void assertThrowFailed(int line)
     std::cerr << "exception not thrown" << std::endl;
 }
 
-static void testcase(const std::string &name, void (*f)(), int argc, char * const *argv)
+static void testcase(const std::string &name, void (*const f)(), int argc, char *argv[])
 {
     if (argc == 1) {
         f();
@@ -80,30 +80,30 @@ static void testcase(const std::string &name, void (*f)(), int argc, char * cons
 
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
-static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
+static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
 {
     std::istringstream istr(std::string(code, size));
     return {istr,filenames,filename,outputList};
 }
 
-static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList *outputList=nullptr)
+static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
 {
     return makeTokenList(code, strlen(code), filenames, filename, outputList);
 }
 
-static std::string readfile(const char code[], simplecpp::OutputList *outputList=nullptr)
+static std::string readfile(const char code[], simplecpp::OutputList * const outputList=nullptr)
 {
     std::vector<std::string> files;
     return makeTokenList(code,files,std::string(),outputList).stringify();
 }
 
-static std::string readfile(const char code[], std::size_t size, simplecpp::OutputList *outputList=nullptr)
+static std::string readfile(const char code[], std::size_t size, simplecpp::OutputList * const outputList=nullptr)
 {
     std::vector<std::string> files;
     return makeTokenList(code,size,files,std::string(),outputList).stringify();
 }
 
-static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList *outputList, const std::string &file = std::string())
+static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList * const outputList, const std::string &file = std::string())
 {
     std::vector<std::string> files;
     simplecpp::FileDataCache cache;
@@ -131,7 +131,7 @@ static std::string preprocess(const char code[], const simplecpp::DUI &dui)
     return preprocess(code, dui, nullptr);
 }
 
-static std::string preprocess(const char code[], simplecpp::OutputList *outputList)
+static std::string preprocess(const char code[], simplecpp::OutputList * const outputList)
 {
     return preprocess(code, simplecpp::DUI(), outputList);
 }
@@ -3525,7 +3525,7 @@ static void leak()
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     TEST_CASE(backslash);
 
