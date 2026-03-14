@@ -20,17 +20,9 @@
 */
 static int doProcess(const uint8_t *data, size_t dataSize)
 {
-    std::vector<std::string> files;
-    const char buf[] = "";
-    simplecpp::TokenList rawtokens(buf, files, "test.cpp");
-
-    simplecpp::TokenList outputTokens(files);
-    simplecpp::FileDataCache filedata;
     simplecpp::DUI dui;
     dui.defines.emplace_back(std::string(reinterpret_cast<const char*>(data), dataSize));
-    simplecpp::preprocess(outputTokens, rawtokens, files, filedata, dui);
-
-    simplecpp::cleanup(filedata);
+    simplecpp::preprocess(dui);
 
     return 0;
 }
