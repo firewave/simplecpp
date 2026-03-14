@@ -150,12 +150,12 @@ static bool endsWith(const std::string &s, const std::string &e)
     return (s.size() >= e.size()) && std::equal(e.rbegin(), e.rend(), s.rbegin());
 }
 
-static bool sameline(const simplecpp::Token *tok1, const simplecpp::Token *tok2)
+static bool sameline(const simplecpp::Token * const tok1, const simplecpp::Token * const tok2)
 {
     return tok1 && tok2 && tok1->location.sameline(tok2->location);
 }
 
-static bool isAlternativeBinaryOp(const simplecpp::Token *tok, const std::string &alt)
+static bool isAlternativeBinaryOp(const simplecpp::Token * const tok, const std::string &alt)
 {
     return (tok->name &&
             tok->str() == alt &&
@@ -165,7 +165,7 @@ static bool isAlternativeBinaryOp(const simplecpp::Token *tok, const std::string
             (tok->next->number || tok->next->name || tok->next->op == '('));
 }
 
-static bool isAlternativeUnaryOp(const simplecpp::Token *tok, const std::string &alt)
+static bool isAlternativeUnaryOp(const simplecpp::Token * const tok, const std::string &alt)
 {
     return ((tok->name && tok->str() == alt) &&
             (!tok->previous || tok->previous->op == '(') &&
@@ -619,7 +619,7 @@ static std::string escapeString(const std::string &str)
     return ostr.str();
 }
 
-static void portabilityBackslash(simplecpp::OutputList *outputList, const simplecpp::Location &location)
+static void portabilityBackslash(simplecpp::OutputList * const outputList, const simplecpp::Location &location)
 {
     if (!outputList)
         return;
@@ -1013,7 +1013,7 @@ void simplecpp::TokenList::constFold()
     }
 }
 
-static bool isFloatSuffix(const simplecpp::Token *tok)
+static bool isFloatSuffix(const simplecpp::Token * const tok)
 {
     if (!tok || tok->str().size() != 1U)
         return false;
@@ -1024,7 +1024,7 @@ static bool isFloatSuffix(const simplecpp::Token *tok)
 static const std::string AND("and");
 static const std::string BITAND("bitand");
 static const std::string BITOR("bitor");
-static bool isAlternativeAndBitandBitor(const simplecpp::Token* tok)
+static bool isAlternativeAndBitandBitor(const simplecpp::Token * const tok)
 {
     return isAlternativeBinaryOp(tok, AND) || isAlternativeBinaryOp(tok, BITAND) || isAlternativeBinaryOp(tok, BITOR);
 }
@@ -2306,7 +2306,7 @@ namespace simplecpp {
          * @return token after B
          */
         const Token *expandHashHash(TokenList &output, const Location &loc, const Token *tok, const MacroMap &macros, const std::set<TokenString> &expandedmacros, const std::vector<const Token*> &parametertokens, bool expandResult=true) const {
-            Token *A = output.back();
+            Token * const A = output.back();
             if (!A)
                 throw invalidHashHash(tok->location, name(), "Missing first argument");
             if (!sameline(tok, tok->next) || !sameline(tok, tok->next->next))
@@ -3090,7 +3090,7 @@ static std::string openHeader(std::ifstream &f, const simplecpp::DUI &dui, const
     return "";
 }
 
-std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::tryload(FileDataCache::name_map_type::iterator &name_it, const simplecpp::DUI &dui, std::vector<std::string> &filenames, simplecpp::OutputList *outputList)
+std::pair<simplecpp::FileData *, bool> simplecpp::FileDataCache::tryload(FileDataCache::name_map_type::iterator &name_it, const simplecpp::DUI &dui, std::vector<std::string> &filenames, simplecpp::OutputList * const outputList)
 {
     const std::string &path = name_it->first;
     FileID fileId;
@@ -3202,7 +3202,7 @@ bool simplecpp::FileDataCache::getFileId(const std::string &path, FileID &id)
 #endif
 }
 
-simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, FileDataCache cache)
+simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, std::vector<std::string> &filenames, const simplecpp::DUI &dui, simplecpp::OutputList * const outputList, FileDataCache cache)
 {
 #ifdef SIMPLECPP_WINDOWS
     if (dui.clearIncludeCache)
@@ -3285,7 +3285,7 @@ simplecpp::FileDataCache simplecpp::load(const simplecpp::TokenList &rawtokens, 
     return cache;
 }
 
-static bool preprocessToken(simplecpp::TokenList &output, const simplecpp::Token *&tok1, simplecpp::MacroMap &macros, std::vector<std::string> &files, simplecpp::OutputList *outputList)
+static bool preprocessToken(simplecpp::TokenList &output, const simplecpp::Token *&tok1, simplecpp::MacroMap &macros, std::vector<std::string> &files, simplecpp::OutputList * const outputList)
 {
     const simplecpp::Token * const tok = tok1;
     const simplecpp::MacroMap::const_iterator it = tok->name ? macros.find(tok->str()) : macros.end();
@@ -3325,21 +3325,21 @@ static void getLocaltime(struct tm &ltime)
 #endif
 }
 
-static std::string getDateDefine(const struct tm *timep)
+static std::string getDateDefine(const struct tm * const timep)
 {
     char buf[] = "??? ?? ????";
     strftime(buf, sizeof(buf), "%b %d %Y", timep);
     return std::string("\"").append(buf).append("\"");
 }
 
-static std::string getTimeDefine(const struct tm *timep)
+static std::string getTimeDefine(const struct tm * const timep)
 {
     char buf[] = "??:??:??";
     strftime(buf, sizeof(buf), "%H:%M:%S", timep);
     return std::string("\"").append(buf).append("\"");
 }
 
-void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenList &rawtokens, std::vector<std::string> &files, simplecpp::FileDataCache &cache, const simplecpp::DUI &dui, simplecpp::OutputList *outputList, std::list<simplecpp::MacroUsage> *macroUsage, std::list<simplecpp::IfCond> *ifCond)
+void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenList &rawtokens, std::vector<std::string> &files, simplecpp::FileDataCache &cache, const simplecpp::DUI &dui, simplecpp::OutputList * const outputList, std::list<simplecpp::MacroUsage> * const macroUsage, std::list<simplecpp::IfCond> * const ifCond)
 {
 #ifdef SIMPLECPP_WINDOWS
     if (dui.clearIncludeCache)
