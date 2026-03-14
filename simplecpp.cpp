@@ -60,6 +60,16 @@
 #  include <sys/types.h>
 #endif
 
+#if defined(__has_cpp_attribute)
+#  if __has_cpp_attribute (clang::lifetimebound)
+#    define SIMPLECPP_LIFETIMEBOUND [[clang::lifetimebound]]
+#  else
+#    define SIMPLECPP_LIFETIMEBOUND
+#  endif
+#else
+#  define SIMPLECPP_LIFETIMEBOUND
+#endif
+
 static bool isHex(const std::string &s)
 {
     return s.size()>2 && (s.compare(0,2,"0x")==0 || s.compare(0,2,"0X")==0);
@@ -1680,7 +1690,7 @@ namespace simplecpp {
         }
 
         /** how has this macro been used so far */
-        const std::list<Location> &usage() const {
+        const std::list<Location> &usage() const SIMPLECPP_LIFETIMEBOUND {
             return usageList;
         }
 
@@ -1870,7 +1880,7 @@ namespace simplecpp {
 
         const Token *appendTokens(TokenList &tokens,
                                   const Location &rawloc,
-                                  const Token * const lpar,
+                                  const Token * const lpar SIMPLECPP_LIFETIMEBOUND,
                                   const MacroMap &macros,
                                   const std::set<TokenString> &expandedmacros,
                                   const std::vector<const Token*> &parametertokens) const {
@@ -2997,7 +3007,7 @@ static long long evaluate(simplecpp::TokenList &expr, const simplecpp::DUI &dui,
     return expr.cfront() && expr.cfront() == expr.cback() && expr.cfront()->number ? stringToLL(expr.cfront()->str()) : 0LL;
 }
 
-static const simplecpp::Token *gotoNextLine(const simplecpp::Token *tok)
+static const simplecpp::Token *gotoNextLine(const simplecpp::Token *tok SIMPLECPP_LIFETIMEBOUND)
 {
     const unsigned int line = tok->location.line;
     const unsigned int file = tok->location.fileIndex;
