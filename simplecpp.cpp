@@ -247,12 +247,14 @@ public:
     virtual void unget() = 0;
     virtual bool good() = 0;
 
-    unsigned char readChar() {
+private:
+    template<bool Utf16>
+    unsigned char readCharImpl() {
         auto ch = static_cast<unsigned char>(get());
 
         // For UTF-16 encoded files the BOM is 0xfeff/0xfffe. If the
         // character is non-ASCII character then replace it with 0xff
-        if (isUtf16) {
+        if (Utf16) {
             const auto ch2 = static_cast<unsigned char>(get());
             const int ch16 = makeUtf16Char(ch, ch2);
             ch = static_cast<unsigned char>(((ch16 >= 0x80) ? 0xff : ch16));
@@ -263,7 +265,7 @@ public:
             ch = '\n';
 
             int ch2 = get();
-            if (isUtf16) {
+            if (Utf16) {
                 const int c2 = get();
                 ch2 = makeUtf16Char(ch2, c2);
             }
@@ -273,6 +275,11 @@ public:
         }
 
         return ch;
+    }
+
+public:
+    unsigned char readChar() {
+        return (this->*readCharFn)();
     }
 
     int peekChar() {
@@ -304,11 +311,23 @@ public:
     }
 
 protected:
+    unsigned char readCharInternal() {
+        return readCharImpl<false>();
+    }
+
+    unsigned char readUtf16CharInternal() {
+        return readCharImpl<true>();
+    }
+
     void init() {
         // initialize since we use peek() in getAndSkipBOM()
         isUtf16 = false;
         bom = getAndSkipBOM();
         isUtf16 = (bom == 0xfeff || bom == 0xfffe);
+        if (isUtf16)
+            readCharFn = &Stream::readUtf16CharInternal;
+        else
+            readCharFn = &Stream::readCharInternal;
     }
 
 private:
@@ -349,6 +368,7 @@ private:
     unsigned short bom;
 protected:
     bool isUtf16;
+    unsigned char (Stream::*readCharFn)();
 };
 
 namespace {
