@@ -442,7 +442,9 @@ namespace {
         FileStream &operator=(const FileStream&) = delete;
 
         ~FileStream() override {
+            try {
             fclose(file);
+            } catch(...) {}
             file = nullptr;
         }
 
