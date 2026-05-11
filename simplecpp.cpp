@@ -3770,6 +3770,7 @@ void simplecpp::preprocess(simplecpp::TokenList &output, const simplecpp::TokenL
                                 std::string header;
 
                                 if (systemheader) {
+                                    // NOLINTNEXTLINE(bugprone-assignment-in-selection-statement)
                                     while ((tok = tok->next) && tok->op != '>')
                                         header += tok->str();
                                     if (tok && tok->op == '>')
