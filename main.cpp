@@ -49,6 +49,7 @@ int main(int argc, char **argv)
         if (*arg == '-') {
             bool found = false;
             const char c = arg[1];
+            // NOLINTNEXTLINE(bugprone-unhandled-code-paths)
             switch (c) {
             case 'D': { // define symbol
                 found = true;
