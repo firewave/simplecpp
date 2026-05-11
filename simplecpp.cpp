@@ -1699,7 +1699,7 @@ namespace simplecpp {
         };
 
         struct invalidDirectiveAsMacroParameter : public Error {
-            invalidDirectiveAsMacroParameter(const Location &loc)
+            explicit invalidDirectiveAsMacroParameter(const Location &loc)
                 : Error(loc, "it is invalid to use a preprocessor directive as macro parameter") {}
         };
 
