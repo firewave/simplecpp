@@ -485,7 +485,7 @@ public:
     {
         if (!file) {
             files.push_back(filename);
-            throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, simplecpp::Location(files), "File is missing: " + filename);
+            throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, simplecpp::Location(), "File is missing: " + filename);
         }
         init();
     }
@@ -809,7 +809,7 @@ void simplecpp::TokenList::readfile(Stream &stream, const std::string &filename,
                 else
                     fileindex = location.fileIndex;
 
-                lineDirective(fileindex, line, &location);
+                lineDirective(fileindex, line, location);
             }
 
             continue;
