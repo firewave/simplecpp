@@ -487,7 +487,7 @@ public:
     {
         if (!file) {
             files.push_back(filename);
-            throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, simplecpp::Location(files), "File is missing: " + filename);
+            throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, simplecpp::Location(), "File is missing: " + filename);
         }
         init();
     }
