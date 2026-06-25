@@ -433,7 +433,7 @@ namespace {
         {
             if (!file) {
                 files.emplace_back(filename);
-                throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, {}, "File is missing: " + filename);
+                assert(false); //throw simplecpp::Output(simplecpp::Output::FILE_NOT_FOUND, {}, "File is missing: " + filename);
             }
             init();
         }
@@ -1580,13 +1580,13 @@ namespace simplecpp {
          */
         Macro(const Token *tok, std::vector<std::string> &f) : nameTokDef(nullptr), files(f), tokenListDefine(f), valueDefinedInCode_(true) {
             if (sameline(tok->previousSkipComments(), tok))
-                throw std::runtime_error("bad macro syntax");
+                assert(false); //throw std::runtime_error("bad macro syntax"); // TODO
             if (tok->op != '#')
-                throw std::runtime_error("bad macro syntax");
+                assert(false); //throw std::runtime_error("bad macro syntax"); // TODO
             const Token * const hashtok = tok;
             tok = tok->next;
             if (!tok || tok->str() != DEFINE)
-                throw std::runtime_error("bad macro syntax");
+                assert(false); //throw std::runtime_error("bad macro syntax"); // TODO
             tok = tok->next;
             if (!tok || !tok->name || !sameline(hashtok,tok))
                 throw std::runtime_error("bad macro syntax");
@@ -2760,7 +2760,7 @@ static void simplifyHasInclude(simplecpp::TokenList &expr, const simplecpp::DUI 
         if (systemheader) {
             const simplecpp::Token *tok3 = tok1->next;
             if (!tok3) {
-                throw std::runtime_error("missing __has_include closing angular bracket");
+                 assert(false); //throw std::runtime_error("missing __has_include closing angular bracket");
             }
             while (tok3->op != '>') {
                 tok3 = tok3->next;
