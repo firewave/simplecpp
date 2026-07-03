@@ -1017,8 +1017,7 @@ static bool isAlternativeAndBitandBitor(const simplecpp::Token* tok)
 
 void simplecpp::TokenList::combineOperators()
 {
-    std::stack<bool> executableScope;
-    executableScope.push(false);
+    std::stack<bool, std::vector<bool>> executableScope{{false}};
     for (Token *tok = front(); tok; tok = tok->next) {
         if (tok->op == '{') {
             if (executableScope.top()) {
