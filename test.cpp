@@ -115,7 +115,7 @@ static void testcase(const std::string &name, void (*const f)(), int argc, char 
 
 #define TEST_CASE(F)    (testcase(#F, F, argc, argv))
 
-static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
+static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
 {
     switch (USE_INPUT) {
     case Input::Stringstream: {
@@ -129,7 +129,7 @@ static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, s
     return simplecpp::TokenList{filenames}; // unreachable - needed for GCC and Visual Studio
 }
 
-static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
+static simplecpp::TokenList makeTokenList(const char code[], std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND, const std::string &filename=std::string(), simplecpp::OutputList * const outputList=nullptr)
 {
     return makeTokenList(code, strlen(code), filenames, filename, outputList);
 }
