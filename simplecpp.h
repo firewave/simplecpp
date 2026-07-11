@@ -42,6 +42,16 @@
 #  define SIMPLECPP_LIB
 #endif
 
+#if defined(__has_cpp_attribute)
+#  if __has_cpp_attribute (clang::lifetimebound)
+#    define SIMPLECPP_LIFETIMEBOUND [[clang::lifetimebound]]
+#  else
+#    define SIMPLECPP_LIFETIMEBOUND
+#  endif
+#else
+#  define SIMPLECPP_LIFETIMEBOUND
+#endif
+
 #if defined(_MSC_VER)
 #  pragma warning(push)
 // suppress warnings about "conversion from 'type1' to 'type2', possible loss of data"
@@ -610,6 +620,8 @@ namespace simplecpp {
 #if defined(_MSC_VER)
 #  pragma warning(pop)
 #endif
+
+#undef SIMPLECPP_LIFETIMEBOUND
 
 #undef SIMPLECPP_LIB
 
