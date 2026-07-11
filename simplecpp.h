@@ -95,7 +95,7 @@ namespace simplecpp {
     {
         // cppcheck-suppress noExplicitConstructor
         // NOLINTNEXTLINE(misc-explicit-constructor)
-        View(const char* data)
+        View(const char* data SIMPLECPP_LIFETIMEBOUND)
             : mData(data)
             , mSize(strlen(data))
         {}
@@ -109,7 +109,7 @@ namespace simplecpp {
 
         // cppcheck-suppress noExplicitConstructor
         // NOLINTNEXTLINE(misc-explicit-constructor)
-        View(const std::string& str)
+        View(const std::string& str )
             : mData(str.data())
             , mSize(str.size())
         {}

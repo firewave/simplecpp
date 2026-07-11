@@ -81,8 +81,8 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # the warnings were introduced with Clang 23
     if(CMAKE_CXX_STANDARD LESS 20)
         add_compile_options_safe(-Wno-lifetime-safety-intra-tu-suggestions)
+        add_compile_options_safe(-Wno-lifetime-safety-intra-tu-constructor-suggestions)
     endif()
-    add_compile_options_safe(-Wno-lifetime-safety-intra-tu-constructor-suggestions)
     add_compile_options_safe(-Wno-lifetime-safety-cross-tu-constructor-suggestions)
 
     # TODO: fix these?
