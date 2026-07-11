@@ -278,9 +278,9 @@ namespace simplecpp {
     public:
         class Stream;
 
-        explicit TokenList(std::vector<std::string> &filenames);
+        explicit TokenList(std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND);
         /** generates a token list from the given std::istream parameter */
-        TokenList(std::istream &istr, std::vector<std::string> &filenames, const std::string &filename=std::string(), OutputList *outputList = nullptr);
+        TokenList(std::istream &istr, std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND, const std::string &filename=std::string(), OutputList *outputList = nullptr);
         /** generates a token list from the given buffer */
         template<size_t size>
         TokenList(const char (&data)[size], std::vector<std::string> &filenames, const std::string &filename=std::string(), OutputList *outputList = nullptr)
@@ -318,7 +318,7 @@ namespace simplecpp {
 #endif // __cpp_lib_span
 
         /** generates a token list from the given filename parameter */
-        TokenList(const std::string &filename, std::vector<std::string> &filenames, OutputList *outputList = nullptr);
+        TokenList(const std::string &filename, std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND, OutputList *outputList = nullptr);
         TokenList(const TokenList &other);
         TokenList(TokenList &&other);
         ~TokenList();
@@ -398,7 +398,7 @@ namespace simplecpp {
         const std::string& file(const Location& loc) const;
 
     private:
-        TokenList(const unsigned char* data, std::size_t size, std::vector<std::string> &filenames, const std::string &filename, OutputList *outputList, int /*unused*/);
+        TokenList(const unsigned char* data, std::size_t size, std::vector<std::string> &filenames SIMPLECPP_LIFETIMEBOUND, const std::string &filename, OutputList *outputList, int /*unused*/);
 
         void combineOperators();
 
