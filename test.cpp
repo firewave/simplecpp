@@ -159,7 +159,7 @@ static std::string preprocess(const char code[], std::size_t size, const simplec
     return tokens2.stringify();
 }
 
-static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList *outputList, std::list<simplecpp::MacroUsage> *macroUsage = nullptr, std::list<simplecpp::IfCond> *ifCond = nullptr, const std::string &file = std::string())
+static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList * const outputList, std::list<simplecpp::MacroUsage> * const macroUsage = nullptr, std::list<simplecpp::IfCond> * const ifCond = nullptr, const std::string &file = std::string())
 {
     return preprocess(code, strlen(code), dui, outputList, macroUsage, ifCond, file);
 }
